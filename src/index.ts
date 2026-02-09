@@ -238,6 +238,7 @@ const OhMyOpenCodePlugin: Plugin = async (ctx) => {
         showStartupToast: isHookEnabled("startup-toast"),
         isSisyphusEnabled: pluginConfig.sisyphus_agent?.disabled !== true,
         autoUpdate: pluginConfig.auto_update ?? true,
+        disableModelListFetch: pluginConfig.experimental?.disable_model_list_fetch === true,
       }), { enabled: safeHookEnabled })
     : null;
   const keywordDetector = isHookEnabled("keyword-detector")
@@ -484,6 +485,7 @@ const OhMyOpenCodePlugin: Plugin = async (ctx) => {
     availableCategories,
     availableSkills,
     agentOverrides: pluginConfig.agents,
+    skipModelListFetch: pluginConfig.experimental?.disable_model_list_fetch === true,
     onSyncSessionCreated: async (event) => {
       log("[index] onSyncSessionCreated callback", {
         sessionID: event.sessionID,

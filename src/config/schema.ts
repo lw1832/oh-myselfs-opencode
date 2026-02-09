@@ -273,6 +273,8 @@ export const ExperimentalConfigSchema = z.object({
   plugin_load_timeout_ms: z.number().min(1000).optional(),
   /** Wrap hook creation in try/catch to prevent one failing hook from crashing the plugin (default: true at call site) */
   safe_hook_creation: z.boolean().optional(),
+  /** When true, plugin will not call client.provider.list() or client.model.list(); only use local cache (for offline/intranet). Requires cache from a prior run or copied from another machine. */
+  disable_model_list_fetch: z.boolean().optional(),
 })
 
 export const SkillSourceSchema = z.union([

@@ -1,5 +1,0 @@
-export declare const OPENCODE_STORAGE: string;
-export declare const AGENT_USAGE_REMINDER_STORAGE: string;
-export declare const TARGET_TOOLS: Set<string>;
-export declare const AGENT_TOOLS: Set<string>;
-export declare const REMINDER_MESSAGE = "\n[Agent Usage Reminder]\n\nYou called a search/fetch tool directly without leveraging specialized agents.\n\nRECOMMENDED: Use delegate_task with explore/librarian agents for better results:\n\n```\n// Parallel exploration - fire multiple agents simultaneously\ndelegate_task(agent=\"explore\", prompt=\"Find all files matching pattern X\")\ndelegate_task(agent=\"explore\", prompt=\"Search for implementation of Y\") \ndelegate_task(agent=\"librarian\", prompt=\"Lookup documentation for Z\")\n\n// Then continue your work while they run in background\n// System will notify you when each completes\n```\n\nWHY:\n- Agents can perform deeper, more thorough searches\n- Background tasks run in parallel, saving time\n- Specialized agents have domain expertise\n- Reduces context window usage in main session\n\nALWAYS prefer: Multiple parallel delegate_task calls > Direct tool calls\n";

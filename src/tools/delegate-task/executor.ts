@@ -42,6 +42,8 @@ export interface ExecutorContext {
   directory: string
   connectedProvidersOverride?: string[] | null
   availableModelsOverride?: Set<string>
+  /** When true, do not call client.provider.list() / client.model.list() in fetchAvailableModels (offline mode). */
+  skipModelListFetch?: boolean
   userCategories?: CategoriesConfig
   gitMasterConfig?: GitMasterConfig
   sisyphusJuniorModel?: string
@@ -737,6 +739,7 @@ export async function resolveCategoryExecution(
     ? executorCtx.availableModelsOverride
     : await fetchAvailableModels(client, {
         connectedProviders: connectedProviders ?? undefined,
+        skipClientFetch: executorCtx.skipModelListFetch,
       })
 
   const resolved = resolveCategoryConfig(args.category!, {
@@ -956,6 +959,7 @@ Create the work plan directly - that's your job as the planning agent.`,
         ? executorCtx.availableModelsOverride
         : await fetchAvailableModels(client, {
             connectedProviders: connectedProviders ?? undefined,
+            skipClientFetch: executorCtx.skipModelListFetch,
           })
 
       const matchedAgentModelStr = matchedAgent.model

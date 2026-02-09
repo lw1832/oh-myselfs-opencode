@@ -143,9 +143,12 @@ export function writeProviderModelsCache(data: { models: Record<string, string[]
 	}
 }
 
+const OFFLINE_MODELS_ENV = "OH_MY_OPENCODE_OFFLINE_MODELS"
+
 /**
  * Update the connected providers cache by fetching from the client.
  * Also updates the provider-models cache with model lists per provider.
+ * When OH_MY_OPENCODE_OFFLINE_MODELS=1, skips all client calls (offline mode).
  */
 export async function updateConnectedProvidersCache(client: {
 	provider?: {
@@ -155,6 +158,10 @@ export async function updateConnectedProvidersCache(client: {
 		list?: () => Promise<{ data?: Array<{ id: string; provider: string }> }>
 	}
 }): Promise<void> {
+	if (process.env[OFFLINE_MODELS_ENV] === "1") {
+		log("[connected-providers-cache] Skipping cache update (offline models env set)")
+		return
+	}
 	if (!client?.provider?.list) {
 		log("[connected-providers-cache] client.provider.list not available")
 		return

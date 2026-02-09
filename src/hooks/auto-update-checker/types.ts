@@ -26,4 +26,6 @@ export interface AutoUpdateCheckerOptions {
   showStartupToast?: boolean
   isSisyphusEnabled?: boolean
   autoUpdate?: boolean
+  /** When true, do not call updateConnectedProvidersCache (offline / disable model list fetch). */
+  disableModelListFetch?: boolean
 }

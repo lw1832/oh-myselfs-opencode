@@ -46,7 +46,8 @@ export function extractChannel(version: string | null): string {
 }
 
 export function createAutoUpdateCheckerHook(ctx: PluginInput, options: AutoUpdateCheckerOptions = {}) {
-  const { showStartupToast = true, isSisyphusEnabled = false, autoUpdate = true } = options
+  const { showStartupToast = true, isSisyphusEnabled = false, autoUpdate = true, disableModelListFetch = false } = options
+  const skipModelListFetch = disableModelListFetch || process.env.OH_MY_OPENCODE_OFFLINE_MODELS === "1"
 
   const getToastMessage = (isUpdate: boolean, latestVersion?: string): string => {
     if (isSisyphusEnabled) {
@@ -77,8 +78,10 @@ export function createAutoUpdateCheckerHook(ctx: PluginInput, options: AutoUpdat
         const displayVersion = localDevVersion ?? cachedVersion
 
         await showConfigErrorsIfAny(ctx)
-        await showModelCacheWarningIfNeeded(ctx)
-        await updateAndShowConnectedProvidersCacheStatus(ctx)
+        if (!skipModelListFetch) {
+          await showModelCacheWarningIfNeeded(ctx)
+        }
+        await updateAndShowConnectedProvidersCacheStatus(ctx, skipModelListFetch)
 
         if (localDevVersion) {
           if (showStartupToast) {
@@ -188,7 +191,11 @@ async function showModelCacheWarningIfNeeded(ctx: PluginInput): Promise<void> {
   log("[auto-update-checker] Model cache warning shown")
 }
 
-async function updateAndShowConnectedProvidersCacheStatus(ctx: PluginInput): Promise<void> {
+async function updateAndShowConnectedProvidersCacheStatus(ctx: PluginInput, skipModelListFetch: boolean): Promise<void> {
+  if (skipModelListFetch) {
+    log("[auto-update-checker] Skipping connected providers cache update (disable_model_list_fetch or OH_MY_OPENCODE_OFFLINE_MODELS)")
+    return
+  }
   const hadCache = hasConnectedProvidersCache()
 
   updateConnectedProvidersCache(ctx.client).catch(() => {})

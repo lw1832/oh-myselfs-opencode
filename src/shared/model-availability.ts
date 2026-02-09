@@ -133,19 +133,35 @@ export async function getConnectedProviders(client: any): Promise<string[]> {
 	}
 }
 
+const OFFLINE_MODELS_ENV = "OH_MY_OPENCODE_OFFLINE_MODELS"
+
 export async function fetchAvailableModels(
 	client?: any,
-	options?: { connectedProviders?: string[] | null }
+	options?: { connectedProviders?: string[] | null; skipClientFetch?: boolean }
 ): Promise<Set<string>> {
+	const skipClientFetch = options?.skipClientFetch === true || process.env[OFFLINE_MODELS_ENV] === "1"
 	let connectedProviders = options?.connectedProviders ?? null
 	let connectedProvidersUnknown = connectedProviders === null
 
 	log("[fetchAvailableModels] CALLED", { 
 		connectedProvidersUnknown,
-		connectedProviders: options?.connectedProviders 
+		connectedProviders: options?.connectedProviders,
+		skipClientFetch,
 	})
 
-	if (connectedProvidersUnknown && client) {
+	if (skipClientFetch) {
+		// Use cache only; do not call client.provider.list() or client.model.list()
+		connectedProviders = connectedProvidersCache.readConnectedProvidersCache()
+		connectedProvidersUnknown = connectedProviders === null || connectedProviders.length === 0
+		if (connectedProvidersUnknown) {
+			log("[fetchAvailableModels] skipClientFetch: no cache, returning empty set")
+			return new Set<string>()
+		}
+		connectedProviders = connectedProviders ?? []
+		connectedProvidersUnknown = false
+	}
+
+	if (connectedProvidersUnknown && client && !skipClientFetch) {
 		const liveConnected = await getConnectedProviders(client)
 		if (liveConnected.length > 0) {
 			connectedProviders = liveConnected
@@ -155,7 +171,7 @@ export async function fetchAvailableModels(
 	}
 
 	if (connectedProvidersUnknown) {
-		if (client?.model?.list) {
+		if (client?.model?.list && !skipClientFetch) {
 			const modelSet = new Set<string>()
 			try {
 				const modelsResult = await client.model.list()
@@ -258,7 +274,7 @@ export async function fetchAvailableModels(
 		}
 	}
 
-	if (client?.model?.list) {
+	if (client?.model?.list && !skipClientFetch) {
 		try {
 			const modelsResult = await client.model.list()
 			const models = modelsResult.data ?? []

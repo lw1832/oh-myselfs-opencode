@@ -59,6 +59,8 @@ export interface DelegateTaskToolOptions {
    * Test hook: bypass fetchAvailableModels() by providing an explicit available model set.
    */
   availableModelsOverride?: Set<string>
+  /** When true, fetchAvailableModels will not call client.provider.list() / client.model.list() (offline mode). */
+  skipModelListFetch?: boolean
   userCategories?: CategoriesConfig
   gitMasterConfig?: GitMasterConfig
   sisyphusJuniorModel?: string
